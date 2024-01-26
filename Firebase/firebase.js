@@ -59,32 +59,68 @@ export const singInUser = async (email, pass) => {
   }
 };
 export const getUsers = async (email) => {
-  try {
-    const fetchedData = [];
-    const querySnapshot = await firestore()
-      .collection('users')
-      .where(firestore.FieldPath.documentId(), '!=', email)
-      .get();
+    if(email)
+    {
 
-    console.log('User Data:', fetchedData);
-
-    querySnapshot.forEach(doc => {
-      // Here, you have a user document
-      const userData = doc.data();
-      fetchedData.push({
-        id: doc.id,
-        data: userData,
-      });
-    });
-
-    return fetchedData;
-  } catch (error) {
-    console.error('Error fetching users:', error);
-    throw error;
-  }
+        try {
+            const fetchedData = [];
+            const querySnapshot = await firestore()
+            .collection('users')
+            .where(firestore.FieldPath.documentId(), '!=', email)
+            .get();
+            
+            const grpQuerySnapshot = await firestore()
+            .collection('groupChats')
+            .get();
+            grpQuerySnapshot.forEach(doc => {
+                // Here, you have a user document
+                const userData = doc.data();
+                fetchedData.push({
+                    id: doc.id,
+                    data: userData,
+                });
+            });
+            console.log('User Data:', fetchedData);
+            
+            querySnapshot.forEach(doc => {
+                // Here, you have a user document
+                const userData = doc.data();
+                fetchedData.push({
+                    id: doc.id,
+                    data: userData,
+                });
+            });
+            
+            return fetchedData;
+        } catch (error) {
+            console.error('Error fetching users:', error);
+            throw error;
+        }
+    }
 };
-export const sendMsg = async (senderId, recieverId, myMsg) => {
+export const getGroupChats = async () => {
     try {
+      const querySnapshot = await firestore()
+        .collection('groupChat')
+        .get();
+  
+      const groupChats = [];
+      querySnapshot.forEach(doc => {
+        const userData = doc.data();
+        groupChats.push({
+          id: doc.id,
+          data: userData
+        });
+      });
+  
+      return groupChats;
+    } catch (error) {
+      console.error('Error fetching group chats:', error);
+      throw error;
+    }
+  };
+export const sendMsg = async (senderId, recieverId, myMsg) => {
+    try { 
         await firestore()
           .collection('chats')
           .doc('' + senderId + '' + recieverId)
@@ -100,18 +136,43 @@ export const sendMsg = async (senderId, recieverId, myMsg) => {
         console.log("errro sending msg")
     }
 };
-export const recieveMsg = async (senderId, recieverId) => {
-  const msg = await firestore()
-    .collection('chats')
-    .doc(senderId, recieverId)
-    .collection('messages')
-    .orderBy('createdAt','desc');
-    msg.onSnapshot(querySnapshot=>
-        {
-            const allMessages = querySnapshot.docs.map(item=>
-                {
-                    return{...item._data, createdAt: Date.parse(new Date())}
-                })
-        })
-    return () => msg();
-};
+export const sendGroupMsg = async (groupChatId, message) => {
+    try {
+      await firestore()
+        .collection('groupChat')
+        .doc(groupChatId)
+        .collection('messages')
+        .add({
+          ...message,
+          createdAt: firestore.FieldValue.serverTimestamp(),
+        });
+    } catch (error) {
+      console.error('Error sending group message:', error);
+      throw error;
+    }
+  };
+  
+  export const getGroupChatMessages = async (groupChatId) => {
+    try {
+      const querySnapshot = await firestore()
+        .collection('groupChat')
+        .doc(groupChatId)
+        .collection('messages')
+        .orderBy('createdAt', 'desc')
+        .get();
+  
+      const messages = [];
+      querySnapshot.forEach(doc => {
+        messages.push({
+          _id: doc.id,
+          ...doc.data(),
+          createdAt: doc.data().createdAt.toDate()
+        });
+      });
+  
+      return messages;
+    } catch (error) {
+      console.error('Error fetching group chat messages:', error);
+      throw error;
+    }
+  };

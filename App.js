@@ -6,51 +6,24 @@ import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from './screens/LoginScreen';
 import Home from './screens/Home';
-import store from './redux/store';
-import { Provider, useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Chat from './screens/Chat';
+import GroupChat from './screens/GroupChat';
+import SplashScreen from './screens/SplashScreen';
 const Stack = createNativeStackNavigator();
-const App = ({navigation}) => {
-  const [user,setUser] = useState(null);
-  const getUserData = async () => {
-    try {
-      const user = await AsyncStorage.getItem("User");
-      console.log("Async User", user);
-      if(user)
-      {
-        setUser(true);
-      }
-      // Dispatch user data to Redux or perform other actions based on user data
-    } catch (error) {
-      console.error('Error retrieving user data:', error);
-    }
-  };
-
-  useEffect(() => {
-    getUserData();
-  }, [navigation]); 
+const App = () => {
   return (
-    <Provider store={store}>
 
     <NavigationContainer>
-      <Stack.Navigator initialRouteName='Login'>
-        {user ?
-        (
-          <Stack.Screen name='Home' component={Home} options={{headerShown:false}}/>
-        )
-        :
-        (
-          <Stack.Screen name='Login' component={LoginScreen} options={{headerShown:false}}/>
-        )
-
-        }
+      <Stack.Navigator initialRouteName='SplashScreen'>
+      <Stack.Screen name='SplashScreen' component={SplashScreen} options={{headerShown:false}}/>
+      <Stack.Screen name='Login' component={LoginScreen} options={{headerShown:false}}/>
+      <Stack.Screen name='Home' component={Home} options={{headerShown:false,}}/>
         <Stack.Screen name='SignUP'  component={SignUp} options={{headerShown:false}}/>
         <Stack.Screen name='Chat'  component={Chat} options={{headerShown:true}}/>
-
+        <Stack.Screen name='GroupChat'  component={GroupChat} options={{headerShown:true}}/>
       </Stack.Navigator>
     </NavigationContainer>
-    </Provider>
   )
 }
 

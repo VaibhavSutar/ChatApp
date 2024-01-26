@@ -1,11 +1,12 @@
-import { View, Text } from 'react-native'
+import { View, Text, StyleSheet, TextInput } from 'react-native'
 import React, { useCallback, useEffect, useState } from 'react'
-import { GiftedChat } from 'react-native-gifted-chat'
+import { GiftedChat, Send } from 'react-native-gifted-chat'
 import { useRoute } from '@react-navigation/native'
 import { recieveMsg, sendMsg } from '../Firebase/firebase'
 import firestore from '@react-native-firebase/firestore';
 const Chat = () => {
     const [messages, setMessages] = useState([])
+    const [text, setText] = useState('');
     const route = useRoute();
     console.log(route.params.id);
     
@@ -48,8 +49,15 @@ const Chat = () => {
         user={{
           _id: route.params.id,
         }}
+        inverted={true}
       />
     )
 }
-
+const styles = StyleSheet.create({
+    textInput: {
+      color: 'black', // Set the text color for the input
+      backgroundColor: 'white', // Set the background color for the input
+      paddingHorizontal: 10,
+    },
+  });
 export default Chat
