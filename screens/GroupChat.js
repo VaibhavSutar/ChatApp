@@ -34,22 +34,21 @@ const GroupChat = () => {
     }, [route.params.groupID])
   
     const onSend = useCallback(async (messages = []) => {
-        const msg = messages[0];
-        const finalMsg = {
-          ...msg,
-          user: {
-            _id: route.params.userId,
-            name: route.params.userName,
-            createdAt: Date.parse(msg.createdAt)
-          },
-        };
-    
-        setMessages(previousMessages =>
-          GiftedChat.append(previousMessages, finalMsg),
-        );
-    
         try
         {
+            const msg = messages[0];
+            const finalMsg = {
+              ...msg,
+              user: {
+                _id: route.params.userId,
+                name: route.params.userName,
+                createdAt: Date.parse(msg.createdAt)
+              },
+            };
+        
+            setMessages(previousMessages =>
+              GiftedChat.append(previousMessages, finalMsg),
+            );
             sendGroupMsg(route.params.groupID, finalMsg);
 
         }

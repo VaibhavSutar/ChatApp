@@ -137,18 +137,22 @@ export const sendMsg = async (senderId, recieverId, myMsg) => {
     }
 };
 export const sendGroupMsg = async (groupChatId, message) => {
-    try {
-      await firestore()
-        .collection('groupChat')
-        .doc(groupChatId)
-        .collection('messages')
-        .add({
-          ...message,
-          createdAt: firestore.FieldValue.serverTimestamp(),
-        });
-    } catch (error) {
-      console.error('Error sending group message:', error);
-      throw error;
+    if(groupChatId && message)
+    {
+
+        try {
+            await firestore()
+            .collection('groupChat')
+            .doc(groupChatId)
+            .collection('messages')
+            .add({
+                ...message,
+                createdAt: firestore.FieldValue.serverTimestamp(),
+            });
+        } catch (error) {
+            console.error('Error sending group message:', error);
+            throw error;
+        }
     }
   };
   
